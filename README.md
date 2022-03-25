@@ -1,0 +1,2 @@
+# RandomWallpaper
+使用python写的一款桌面端的随机壁纸

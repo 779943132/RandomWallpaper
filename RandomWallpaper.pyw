@@ -3,12 +3,19 @@ import ctypes
 import os
 import random
 import time
+from distutils.util import strtobool
+
 import requests
 from subprocess import run, PIPE
+
+import win32api
+import win32con
+
 from fake_useragent import UserAgent
 
 # 随机产生请求头
 ua = UserAgent(verify_ssl=False, path='fake_useragent.json')
+
 if not os.path.exists('./桌面壁纸'):
     os.mkdir(r'./桌面壁纸')
 
@@ -17,14 +24,7 @@ def download_img(urls):
     headers = {
         'User-Agent': ua.random
     }
-    '''
-    urls = ['https://api.btstu.cn/sjbz/?lx=m_meizi', 'https://api.btstu.cn/sjbz/?lx=m_dongman',
-            'https://tuapi.eees.cc/api.php?type=302&category=meinv',
-            'https://tuapi.eees.cc/api.php?type=302&category=dongman',
-            'https://tuapi.eees.cc/api.php?type=302&category=fengjing']
-    url = random.choice(urls)
-    # print(url)
-    '''
+
     url = urls[random.randint(0, len(urls) - 1)][1]
 
     # request = urllib.request.Request('https://picsum.photos/2560/1440', headers=headers)
@@ -37,8 +37,6 @@ def download_img(urls):
     cur_time = time.strftime(format_time, time_tup) + '.jpg'
 
     response = requests.get(url, headers=headers, verify=True)
-
-    print(response.status_code)
 
     if response.status_code == 200:
         with open(r'./桌面壁纸/{}'.format(cur_time), 'wb') as f:
@@ -85,8 +83,9 @@ def create_config():
                         '[数量]\n' \
                         'number=500\n' \
                         '\n' \
-                        '#如果需要开机自启动，将软件创建快捷方式放入以下目录即可\n' \
-                        '#C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp\n' \
+                        '#是否开机自启,true自启动，false不自启动\n' \
+                        '[自启动]\n' \
+                        'autoStart=true\n' \
                         '\n' \
                         '#壁纸下载源,如果需要可以无限追加\n' \
                         '[外部壁纸链接]\n' \
@@ -96,16 +95,17 @@ def create_config():
                         'url4=https://tuapi.eees.cc/api.php?type=302&category=dongman\n' \
                         'url5=https://tuapi.eees.cc/api.php?type=302&category=fengjing\n' \
                         'url6=https://tuapi.eees.cc/api.php?type=302&category=biying\n' \
-                        'url7=https://picsum.photos/2560/1440'
+                        '#url7=https://picsum.photos/2560/1440'
             f.write(configstr)
             f.close()
 
-# '#是否开机自启,true自启动，false不自启动\n' \
-# '[自启动]\n' \
-# 'autoStart=false\n' \
-
 
 if __name__ == '__main__':
+    # ct = win32api.GetConsoleTitle()
+    #
+    # hd = win32gui.FindWindow(0, ct)
+    # win32gui.ShowWindow(hd, 0)
+
     # 创建配置文件
     create_config()
     config = configparser.ConfigParser()
@@ -117,30 +117,30 @@ if __name__ == '__main__':
     number = config.getint('数量', 'number')
     # 获取壁纸源
     urls = config.items('外部壁纸链接')
-    '''
-    # 是否自启动
-    # autoStart = strtobool(config.get('自启动', 'autoStart'))
-    #
-    # if autoStart:
-    #     path = r'./{}'.format(os.path.split(__file__)[-1])
-    #     zpath = os.path.abspath(path)
-    #     with open(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs', 'w',
-    #               encoding='utf-8') as f:
-    #         string = '@echo off\n' \
-    #                  'if %1 == yes goto begin\n' \
-    #                  'mshta vbscriptcreateobject(wscript.shell).run(cmd c {},0)(window.close)&&exit\n' \
-    #                  'begin'.format(zpath)
-    #         f.write(string)
-    #         f.close()
-    # else:
-    #     if os.path.isfile(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs'):
-    #         os.remove(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs')
 
+    # 是否自启动
+    autoStart = strtobool(config.get('自启动', 'autoStart'))
+
+
+    if autoStart:
+        k = win32api.RegOpenKeyEx(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0,
+                                win32con.KEY_ALL_ACCESS)
+        path = r'./{}'.format(os.path.split(__file__)[-1])
+        zpath = os.path.abspath(path).split('.')[0] + '.exe'
+        win32api.RegSetValueEx(k, 'RandomWallpaper', 1, win32con.REG_SZ,zpath)
+        win32api.RegCloseKey(k)
+    else:
+        key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0,
+                                  win32con.KEY_ALL_ACCESS)
+
+        try:
+            win32api.RegDeleteValue(key, 'RandomWallpaper')
+        except:
+            pass
     # 隐藏命令窗
-    # ct = win32api.GetConsoleTitle()
-    # hd = win32gui.FindWindow(0, ct)
-    # win32gui.ShowWindow(hd, 0)
-    '''
+
+
+
     # 判断是否有网
     while True:
         r = run('ping www.baidu.com', stdout=PIPE, stderr=PIPE, stdin=PIPE, shell=True)

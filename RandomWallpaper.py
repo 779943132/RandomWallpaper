@@ -22,14 +22,7 @@ def download_img(urls):
     headers = {
         'User-Agent': ua.random
     }
-    '''
-    urls = ['https://api.btstu.cn/sjbz/?lx=m_meizi', 'https://api.btstu.cn/sjbz/?lx=m_dongman',
-            'https://tuapi.eees.cc/api.php?type=302&category=meinv',
-            'https://tuapi.eees.cc/api.php?type=302&category=dongman',
-            'https://tuapi.eees.cc/api.php?type=302&category=fengjing']
-    url = random.choice(urls)
-    # print(url)
-    '''
+
     url = urls[random.randint(0, len(urls) - 1)][1]
 
     request = urllib.request.Request(url, headers=headers)
@@ -48,9 +41,6 @@ def download_img(urls):
     files = os.listdir(path)
     return len(files)
 
-
-# https://api.btstu.cn/sjbz/?lx=m_dongman
-# https://api.btstu.cn/sjbz/?lx=m_meizi
 # 删除一半图片
 def delete():
     path = r'./桌面壁纸'
@@ -120,21 +110,6 @@ if __name__ == '__main__':
     urls = config.items('外部壁纸链接')
     # 是否自启动
     # autoStart = strtobool(config.get('自启动', 'autoStart'))
-    #
-    # if autoStart:
-    #     path = r'./{}'.format(os.path.split(__file__)[-1])
-    #     zpath = os.path.abspath(path)
-    #     with open(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs', 'w',
-    #               encoding='utf-8') as f:
-    #         string = '@echo off\n' \
-    #                  'if %1 == yes goto begin\n' \
-    #                  'mshta vbscriptcreateobject(wscript.shell).run(cmd c {},0)(window.close)&&exit\n' \
-    #                  'begin'.format(zpath)
-    #         f.write(string)
-    #         f.close()
-    # else:
-    #     if os.path.isfile(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs'):
-    #         os.remove(r'C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/start.vbs')
 
     # 隐藏命令窗
     ct = win32api.GetConsoleTitle()

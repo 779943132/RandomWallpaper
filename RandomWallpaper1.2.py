@@ -22,25 +22,27 @@ ua = UserAgent(verify_ssl=False, path='fake_useragent.json')
 if not os.path.exists('./桌面壁纸'):
     os.mkdir(r'./桌面壁纸')
 
-
+#下载图片
 def download_img(urls):
     headers = {
         'User-Agent': ua.random
     }
 
     url = urls[random.randint(0, len(urls) - 1)][1]
-
     time_tup = time.localtime(time.time())
     format_time = '%Y-%m-%d_%a_%H-%M-%S'
     cur_time = time.strftime(format_time, time_tup) + '.jpg'
-    response = requests.get(url, headers=headers, stream=True)
-
-    if response.status_code == 200:
-        with open(r'./桌面壁纸/{}'.format(cur_time), 'wb') as f:
-            f.write(response.content)
-        path = r'./桌面壁纸'
-        files = os.listdir(path)
-        return len(files)
+    try:
+        response = requests.get(url, headers=headers, stream=True)
+        if response.status_code == 200:
+            with open(r'./桌面壁纸/{}'.format(cur_time), 'wb') as f:
+                f.write(response.content)
+    except:
+        pass
+    
+    path = r'./桌面壁纸'
+    files = os.listdir(path)
+    return len(files)
 
 
 # 删除一半图片
@@ -130,17 +132,6 @@ if __name__ == '__main__':
         regedit.set_regedit(path)
     else:
         regedit.del_regedit()
-    # k = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0,
-    #                         win32con.KEY_ALL_ACCESS)
-    # if autoStart:
-    #     win32api.RegSetValueEx(k, 'RandomWallpaper', 1, win32con.REG_SZ,
-    #                            os.path.realpath(__file__).split('.')[0] + '.exe')
-    # else:
-    #     try:
-    #         win32api.RegDeleteValue(k, 'RandomWallpaper')
-    #     except:
-    #         pass
-    # win32api.RegCloseKey(k)
 
     # 判断是否有网
     while True:

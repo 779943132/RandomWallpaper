@@ -19,7 +19,7 @@ ua = UserAgent(verify_ssl=False, path='fake_useragent.json')
 if not os.path.exists('./桌面壁纸'):
     os.mkdir(r'./桌面壁纸')
 
-
+#图片下载
 def download_img(urls):
     headers = {
         'User-Agent': ua.random
@@ -35,15 +35,19 @@ def download_img(urls):
     time_tup = time.localtime(time.time())
     format_time = '%Y-%m-%d_%a_%H-%M-%S'
     cur_time = time.strftime(format_time, time_tup) + '.jpg'
+    #尝试下载，不成功跳过，不显示错误
+    try:
+        response = requests.get(url, headers=headers, verify=True)
 
-    response = requests.get(url, headers=headers, verify=True)
-
-    if response.status_code == 200:
-        with open(r'./桌面壁纸/{}'.format(cur_time), 'wb') as f:
-            f.write(response.content)
-        path = r'./桌面壁纸'
-        files = os.listdir(path)
-        return len(files)
+        if response.status_code == 200:
+            with open(r'./桌面壁纸/{}'.format(cur_time), 'wb') as f:
+                f.write(response.content)
+    except:
+        pass
+    #统计本地图片数量
+    path = r'./桌面壁纸'
+    files = os.listdir(path)
+    return len(files)
 
 
 # 删除一半图片
@@ -137,9 +141,6 @@ if __name__ == '__main__':
             win32api.RegDeleteValue(key, 'RandomWallpaper')
         except:
             pass
-    # 隐藏命令窗
-
-
 
     # 判断是否有网
     while True:
